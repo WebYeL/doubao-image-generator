@@ -55,13 +55,13 @@ class ImageService:
     def _map_size(self, size: ImageSize) -> str:
         """映射尺寸参数到API期望的格式"""
         size_mapping = {
-            ImageSize.SIZE_1K: "1K",
-            ImageSize.SIZE_2K: "2K",
-            ImageSize.SIZE_4K: "4K",
-            ImageSize.PORTRAIT_1K: "竖图1K",
-            ImageSize.PORTRAIT_2K: "竖图2K"
+            ImageSize.SIZE_1K: "2048x2048",
+            ImageSize.SIZE_2K: "2048x2048",
+            ImageSize.SIZE_4K: "3072x3072",
+            ImageSize.PORTRAIT_1K: "2048x2560",
+            ImageSize.PORTRAIT_2K: "2048x2560"
         }
-        return size_mapping.get(size, "2K")
+        return size_mapping.get(size, "2048x2048")
 
     def _generate_image_id(self) -> str:
         """生成唯一的图片ID"""
