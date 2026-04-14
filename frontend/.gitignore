@@ -1,0 +1,17 @@
+# Doubao Image Generator
+
+node_modules/
+dist/
+dist-ssr/
+*.local
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
