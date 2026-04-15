@@ -83,6 +83,8 @@ npm run dev
 ## 功能特性
 
 - AI图片生成（基于 Doubao-Seedream-5.0-lite 模型）
+- 文生图功能：根据文字描述生成图片
+- 图生图功能：根据输入图片生成新图片
 - 多种尺寸支持（1K/2K/4K/竖图1K/竖图2K）
 - 支持批量生成（1-4张）
 - 生成历史记录管理
@@ -99,3 +101,25 @@ npm run dev
 ## 接口文档
 
 详细接口说明请查看 [API接口文档](./docs/API接口文档.md)，或访问 http://localhost:8886/docs 查看自动生成的 Swagger 文档。
+
+## 新增功能 - 图生图
+
+应用现在支持图生图功能，可以通过以下两种方式提供输入图片：
+
+1. **上传本地图片**：直接上传本地图片文件
+2. **图片URL**：输入公开的图片URL地址
+3. **Base64编码**：输入图片的base64编码字符串
+
+### 图生图接口
+
+- **路径**: `POST /api/v1/images/generate-from-image`
+- **参数**: 
+  - `prompt`: 图片描述提示词（必填）
+  - `image_url`: 输入图片URL（与image_base64二选一）
+  - `image_base64`: 输入图片base64数据（与image_url二选一）
+  - `size`: 图片尺寸（可选，默认2K）
+  - `n`: 生成数量（可选，默认1）
+  - `style`: 风格预设（可选）
+  - `negative_prompt`: 负向提示词（可选）
+  - `watermark`: 是否添加水印（可选，默认true）
+  - `strength`: 生成强度（可选，0-1，默认0.75）

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs kill:*)",
+      "Bash(python -m uvicorn app.main:app --host 0.0.0.0 --port 8886 --reload)",
+      "Bash(npm run:*)",
+      "Bash(pkill -f \"python -m uvicorn\")",
+      "WebSearch",
+      "Bash(python -c \"from volcenginesdkarkruntime import Ark; help\\(Ark.images.generate\\)\")",
+      "Bash(python -c \"from volcenginesdkarkruntime import Ark; client = Ark\\(api_key=''test''\\); help\\(client\\)\")",
+      "Bash(python -c \"import volcenginesdkarkruntime.resources; help\\(volcenginesdkarkruntime.resources\\)\")",
+      "Bash(python:*)"
+    ]
+  }
+}

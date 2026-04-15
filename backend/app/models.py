@@ -26,6 +26,12 @@ class ImageGenerateRequest(BaseModel):
     watermark: bool = Field(default=True, description="是否添加水印")
     response_format: str = Field(default="url", description="返回格式: url或b64_json")
 
+
+class ImageToImageRequest(ImageGenerateRequest):
+    """图生图请求模型"""
+    image_url: Optional[str] = Field(default=None, description="输入图片URL")
+    image_base64: Optional[str] = Field(default=None, description="输入图片Base64数据")
+
     @field_validator("prompt")
     @classmethod
     def validate_prompt(cls, v: str) -> str:

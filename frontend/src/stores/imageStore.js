@@ -4,6 +4,7 @@
 import { defineStore } from 'pinia'
 import {
   generateImages as apiGenerateImages,
+  generateImagesFromImage as apiGenerateImagesFromImage,
   getImageHistory as apiGetHistory,
   deleteImage as apiDeleteImage,
   clearHistory as apiClearHistory
@@ -43,6 +44,35 @@ export const useImageStore = defineStore('image', {
 
       try {
         const response = await apiGenerateImages(params)
+
+        if (response.success) {
+          this.currentImages = response.data
+          this.generatingMessage = '生成成功！'
+          return { success: true, data: response.data }
+        } else {
+          this.error = response.message
+          this.generatingMessage = response.message
+          return { success: false, error: response.message }
+        }
+      } catch (error) {
+        this.error = error.message
+        this.generatingMessage = error.message
+        return { success: false, error: error.message }
+      } finally {
+        this.generating = false
+      }
+    },
+
+    /**
+     * 图生图 - 根据输入图片生成新图片
+     */
+    async generateImagesFromImage(params) {
+      this.generating = true
+      this.error = null
+      this.generatingMessage = '正在根据图片生成图片...'
+
+      try {
+        const response = await apiGenerateImagesFromImage(params)
 
         if (response.success) {
           this.currentImages = response.data

@@ -105,8 +105,26 @@ export const healthCheck = () => {
   return apiClient.get(getApiUrl('/health'))
 }
 
+/**
+ * 图生图
+ * @param {Object} params - 生成参数
+ * @param {string} params.prompt - 提示词
+ * @param {string} params.size - 尺寸
+ * @param {number} params.n - 数量
+ * @param {string} [params.style] - 风格
+ * @param {string} [params.negative_prompt] - 负向提示词
+ * @param {boolean} [params.watermark] - 是否添加水印
+ * @param {string} [params.image_url] - 输入图片URL
+ * @param {string} [params.image_base64] - 输入图片base64数据
+ * @param {number} [params.strength] - 生成强度
+ */
+export const generateImagesFromImage = (params) => {
+  return apiClient.post(getApiUrl('/api/v1/images/generate-from-image'), params)
+}
+
 export default {
   generateImages,
+  generateImagesFromImage,
   getImageDetail,
   getImageHistory,
   deleteImage,

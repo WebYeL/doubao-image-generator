@@ -1,10 +1,28 @@
 <template>
   <a-card title="图片生成" class="prompt-form-card">
     <template #extra>
-      <a-button type="text" @click="handleClear" :disabled="generating">
-        <template #icon><ClearOutlined /></template>
-        清空
-      </a-button>
+      <a-space>
+        <a-button-group>
+          <a-button
+            :type="!isImageToImage ? 'primary' : 'default'"
+            @click="switchToTextToImage"
+            :disabled="generating"
+          >
+            文生图
+          </a-button>
+          <a-button
+            :type="isImageToImage ? 'primary' : 'default'"
+            @click="switchToImageToImage"
+            :disabled="generating"
+          >
+            图生图
+          </a-button>
+        </a-button-group>
+        <a-button type="text" @click="handleClear" :disabled="generating">
+          <template #icon><ClearOutlined /></template>
+          清空
+        </a-button>
+      </a-space>
     </template>
 
     <a-form
@@ -25,6 +43,37 @@
           :disabled="generating"
         />
       </a-form-item>
+
+      <!-- 图生图选项 - 仅在图生图模式下显示 -->
+      <div v-if="isImageToImage">
+        <!-- 图生图输入 -->
+        <a-form-item label="参考图片">
+          <a-upload
+            :file-list="fileList"
+            :before-upload="handleBeforeUpload"
+            :custom-request="handleCustomRequest"
+            :show-upload-list="true"
+            :disabled="generating"
+          >
+            <a-button>
+              <template #icon><UploadOutlined /></template>
+              上传参考图片
+            </a-button>
+          </a-upload>
+          <p class="ant-upload-hint">
+            支持上传本地图片作为参考，或直接输入图片URL
+          </p>
+        </a-form-item>
+
+        <a-form-item label="图片URL或Base64">
+          <a-input
+            v-model:value="formState.image_input"
+            placeholder="输入图片URL或Base64编码字符串"
+            :disabled="generating"
+          />
+        </a-form-item>
+
+      </div>
 
       <!-- 提示词模板 -->
       <a-form-item label="提示词模板">
@@ -126,7 +175,7 @@
           <template #icon>
             <ThunderboltOutlined v-if="!generating" />
           </template>
-          {{ generating ? '生成中...' : '生成图片' }}
+          {{ generating ? '生成中...' : isImageToImage ? '图生图' : '生成图片' }}
         </a-button>
       </a-form-item>
     </a-form>
@@ -138,7 +187,8 @@ import { reactive, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import {
   ClearOutlined,
-  ThunderboltOutlined
+  ThunderboltOutlined,
+  UploadOutlined
 } from '@ant-design/icons-vue'
 
 const props = defineProps({
@@ -160,8 +210,12 @@ const formState = reactive({
   n: 1,
   style: null,
   negative_prompt: '',
-  watermark: true
+  watermark: true,
+  image_input: ''
 })
+
+const fileList = ref([])
+const isImageToImage = ref(false)
 
 const rules = {
   prompt: [
@@ -187,6 +241,18 @@ const handleTemplateChange = (value) => {
   }
 }
 
+const switchToTextToImage = () => {
+  isImageToImage.value = false
+  formState.image_input = ''
+  fileList.value = []
+}
+
+const switchToImageToImage = () => {
+  isImageToImage.value = true
+  formState.image_input = ''
+  fileList.value = []
+}
+
 const handleClear = () => {
   formState.prompt = ''
   formState.size = '2K'
@@ -194,8 +260,34 @@ const handleClear = () => {
   formState.style = null
   formState.negative_prompt = ''
   formState.watermark = true
+  formState.image_input = ''
+  fileList.value = []
   selectedTemplate.value = null
   emit('clear')
+}
+
+const handleBeforeUpload = (file) => {
+  const isImage = file.type.startsWith('image/')
+  if (!isImage) {
+    message.error('请上传图片文件')
+    return false
+  }
+  const isLt10M = file.size / 1024 / 1024 < 10
+  if (!isLt10M) {
+    message.error('图片大小不能超过10MB')
+    return false
+  }
+  return true
+}
+
+const handleCustomRequest = (options) => {
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    // 保留完整的data URL格式（Doubao API需要完整格式：data:image/png;base64,...）
+    formState.image_input = e.target.result
+    message.success('图片上传成功')
+  }
+  reader.readAsDataURL(options.file)
 }
 
 const handleSubmit = async () => {
@@ -215,6 +307,22 @@ const handleSubmit = async () => {
 
     if (formState.negative_prompt) {
       params.negative_prompt = formState.negative_prompt
+    }
+
+    if (formState.image_input) {
+      // 判断是URL还是base64数据
+      // Base64格式：data:image/png;base64,... 或纯base64字符串
+      // URL格式：以 http:// 或 https:// 开头
+      if (formState.image_input.startsWith('data:')) {
+        // 完整的data URL格式
+        params.image_base64 = formState.image_input
+      } else if (formState.image_input.startsWith('http://') || formState.image_input.startsWith('https://')) {
+        // URL格式
+        params.image_url = formState.image_input
+      } else {
+        // 纯base64字符串，添加前缀
+        params.image_base64 = `data:image/png;base64,${formState.image_input}`
+      }
     }
 
     emit('submit', params)

@@ -10,6 +10,7 @@ import logging
 from ..models import (
     ImageGenerateRequest,
     ImageGenerateResponse,
+    ImageToImageRequest,
     ImageInfo,
     ImageHistoryResponse,
     HealthResponse,
@@ -80,6 +81,76 @@ async def generate_images(request: ImageGenerateRequest):
         raise
     except Exception as e:
         logger.error(f"Error in generate_images: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post(
+    "/generate-from-image",
+    response_model=ImageGenerateResponse,
+    responses={
+        400: {"model": ErrorResponse},
+        500: {"model": ErrorResponse}
+    },
+    summary="图生图",
+    description="根据输入图片生成新图片"
+)
+async def generate_images_from_image(request: ImageToImageRequest):
+    """
+    图生图接口
+
+    - **prompt**: 图片描述提示词（必填）
+    - **image_url**: 输入图片URL(与image_base64二选一)
+    - **image_base64**: 输入图片base64数据(与image_url二选一)
+    - **size**: 图片尺寸（1K/2K/4K/竖图1K/竖图2K）
+    - **n**: 生成数量（1-4张）
+    - **style**: 风格预设（可选）
+    - **negative_prompt**: 负向提示词（可选）
+    - **watermark**: 是否添加水印
+    - **strength**: 生成强度, 0-1, 越高越接近原图
+    """
+    try:
+        # 验证prompt长度
+        if len(request.prompt) < settings.MIN_PROMPT_LENGTH:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Prompt must be at least {settings.MIN_PROMPT_LENGTH} characters"
+            )
+
+        if len(request.prompt) > settings.MAX_PROMPT_LENGTH:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Prompt must not exceed {settings.MAX_PROMPT_LENGTH} characters"
+            )
+
+        # 验证生成数量
+        if request.n > settings.MAX_IMAGES_PER_REQUEST:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot generate more than {settings.MAX_IMAGES_PER_REQUEST} images at once"
+            )
+
+        # 验证输入图片（image_url 或 image_base64 至少有一个）
+        if not request.image_url and not request.image_base64:
+            raise HTTPException(
+                status_code=400,
+                detail="Either image_url or image_base64 must be provided"
+            )
+
+        # 调用服务生成图片
+        response = await image_service.generate_images_from_image(request)
+
+        if not response.success:
+            raise HTTPException(
+                status_code=500,
+                detail=response.message
+            )
+
+        return response
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in generate_images_from_image: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

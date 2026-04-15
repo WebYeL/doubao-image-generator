@@ -103,7 +103,15 @@ const imageStore = useImageStore()
 const promptFormRef = ref(null)
 
 const handleGenerate = async (params) => {
-  const result = await imageStore.generateImages(params)
+  let result
+  // 判断是否是图生图请求
+  const hasImageInput = params.image_url || params.image_base64
+
+  if (hasImageInput) {
+    result = await imageStore.generateImagesFromImage(params)
+  } else {
+    result = await imageStore.generateImages(params)
+  }
 
   if (result.success) {
     message.success(`成功生成 ${result.data.length} 张图片`)
