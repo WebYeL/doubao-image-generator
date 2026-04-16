@@ -10,3 +10,4 @@ pillow==10.2.0
 httpx==0.26.0
 aiofiles==23.2.1
 python-multipart==0.0.6
+volcengine-python-sdk>=4.0.14
