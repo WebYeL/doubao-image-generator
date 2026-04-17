@@ -1,6 +1,6 @@
 # Doubao 图片/视频生成器
 
-基于 Doubao-Seedream-5.0-lite 的 AI 图片生成和 Doubao-Seedance 2.0 的视频生成应用。
+基于 Doubao-Seedream-5.0-lite 的 AI 图片生成和 doubao-seedance-1-0-pro-fast 的视频生成应用。
 
 ## 项目结构
 
@@ -87,7 +87,7 @@ npm run dev
 - 图片预览和下载
 
 ### 视频生成
-- AI视频生成（基于 Doubao-Seedance 2.0 模型）
+- AI视频生成（基于 doubao-seedance-1-0-pro-fast 模型）
 - 文生视频：根据文字描述生成视频
 - 图生视频：根据输入图片生成视频
 - 支持多种分辨率（480p/720p/1080p）
@@ -109,7 +109,7 @@ npm run dev
 - **后端**：Python 3.8+ / FastAPI / volcengine-python-sdk
 - **前端**：Vue 3 / Vite / Ant Design Vue / Pinia
 - **图片模型**：Doubao-Seedream-5.0-lite（`doubao-seedream-5-0-260128`）
-- **视频模型**：Doubao-Seedance 2.0 Pro（`doubao-seedance-2-0-pro-260416`）
+- **视频模型**：doubao-seedance-1-0-pro-fast（`doubao-seedance-1-0-pro-fast`）
 
 ## API接口
 
