@@ -152,3 +152,144 @@ npm run dev
 ## 更新日志
 
 详细更新记录请查看 [CHANGELOG.md](./CHANGELOG.md)。
+
+---
+
+## 开源协作
+
+我们非常欢迎社区贡献！本项目采用 PR（Pull Request）协作模式，所有代码变更必须通过 PR 提交并由维护者审核后方可合并。
+
+### 如何贡献
+
+#### 1. Fork 本仓库
+
+点击 GitHub 仓库页面的 "Fork" 按钮，将仓库复制到您的 GitHub 账号。
+
+#### 2. 克隆到本地
+
+```bash
+git clone https://github.com/您的用户名/doubao-image-generator.git
+cd doubao-image-generator
+```
+
+#### 3. 创建功能分支
+
+```bash
+git checkout -b feat/你的功能名称
+# 或
+git checkout -b fix/问题描述
+```
+
+**分支命名规范：**
+- 新功能：`feat/功能描述`
+- 问题修复：`fix/问题描述`
+- 文档更新：`docs/文档描述`
+- 重构：`refactor/重构描述`
+
+#### 4. 提交代码
+
+```bash
+git add .
+git commit -m "feat: 添加新功能"
+```
+
+**提交信息规范：**
+- 使用中文或英文清晰描述
+- 建议采用 Conventional Commits 格式：
+  - `feat:` 新功能
+  - `fix:` 问题修复
+  - `docs:` 文档更新
+  - `style:` 代码格式（不影响功能）
+  - `refactor:` 重构
+  - `test:` 测试
+  - `chore:` 构建或辅助工具变动
+
+示例：
+```bash
+git commit -m "feat: 新增视频水印配置选项"
+git commit -m "fix: 修复视频下载失败的问题"
+```
+
+#### 5. 推送到您的 Fork
+
+```bash
+git push origin feat/你的功能名称
+```
+
+#### 6. 创建 Pull Request
+
+1. 访问原仓库：https://github.com/WebYeL/doubao-image-generator
+2. 点击 "New Pull Request"
+3. 选择您的分支与原仓库的 `master` 分支
+4. 填写 PR 标题和详细描述：
+   - 说明做了什么变更
+   - 关联的相关 Issue（如有）
+   - 测试情况
+5. 提交 PR，等待审核
+
+### PR 审核流程
+
+1. **维护者收到 PR 后会进行代码审查**
+   - 检查代码质量和风格
+   - 验证功能是否正常工作
+   - 评估是否与项目目标一致
+
+2. **可能需要修改**
+   - 维护者会提出修改建议
+   - 请在原分支修改并重新推送，PR 会自动更新
+
+3. **审核通过后合并**
+   - 维护者会将 PR 合并到 `master` 分支
+   - 您将成为本次贡献的贡献者
+
+### 开发建议
+
+#### 代码规范
+
+**后端（Python）：**
+- 遵循 PEP 8 规范
+- 使用类型提示（Type Hints）
+- 添加必要的文档字符串
+- 异常处理要完整
+
+**前端（Vue 3）：**
+- 使用 Composition API
+- 遵循 Vue 3 最佳实践
+- 组件命名使用 PascalCase
+- 保持组件单一职责
+
+#### 测试
+
+- 新功能请尽量添加单元测试
+- 确保现有测试通过
+- 手动测试主要功能路径
+
+#### 文档
+
+- 更新相关文档（README、API文档等）
+- 代码注释要清晰
+- 更新 CHANGELOG.md（可在 PR 中由维护者统一更新）
+
+### Issue 反馈
+
+如果您发现问题或有功能建议，请先创建 Issue：
+
+1. 搜索是否已存在相关 Issue
+2. 使用模板创建新 Issue
+3. 清晰描述问题或需求
+4. 提供必要的上下文（截图、日志等）
+
+### 行为准则
+
+- 尊重所有社区成员
+- 提供建设性反馈
+- 接受合理的批评和建议
+- 共同维护良好的开源氛围
+
+### 许可证
+
+本项目采用开源许可证，详情请查看 `LICENSE` 文件（如有）。贡献代码即表示您同意您的代码将根据项目许可证进行分发。
+
+---
+
+感谢您的贡献！🎉
