@@ -34,6 +34,12 @@ class Settings(BaseSettings):
     MAX_REQUESTS_PER_MINUTE: int = 10
     MAX_REQUESTS_PER_DAY: int = 100
 
+    # 视频生成配置
+    VIDEO_MODEL_NAME: str = "doubao-seedance-2-0-pro-260416"
+    VIDEO_STORAGE_PATH: str = "./generated_videos"
+    VIDEO_POLL_INTERVAL: int = 10  # 轮询间隔(秒)
+    VIDEO_MAX_POLL_TIME: int = 600  # 最大轮询时间(秒)
+
     # CORS配置
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
 
@@ -48,6 +54,13 @@ settings = Settings()
 def get_storage_path() -> Path:
     """获取图片存储路径"""
     path = Path(settings.IMAGE_STORAGE_PATH)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def get_video_storage_path() -> Path:
+    """获取视频存储路径"""
+    path = Path(settings.VIDEO_STORAGE_PATH)
     path.mkdir(parents=True, exist_ok=True)
     return path
 

@@ -7,9 +7,19 @@ const routes = [
     component: () => import('@/views/ImageGenerator.vue')
   },
   {
+    path: '/video',
+    name: 'VideoGenerator',
+    component: () => import('@/views/VideoGenerator.vue')
+  },
+  {
     path: '/history',
     name: 'History',
     component: () => import('@/views/ImageHistory.vue')
+  },
+  {
+    path: '/video-history',
+    name: 'VideoHistory',
+    component: () => import('@/views/VideoHistory.vue')
   }
 ]
 

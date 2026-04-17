@@ -5,18 +5,18 @@
       <a-layout-header class="header">
         <div class="header-content">
           <div class="logo">
-            <ThunderboltOutlined class="logo-icon" />
-            <span>Doubao 图片生成器</span>
+            <VideoCameraAddOutlined class="logo-icon" />
+            <span>Doubao 视频生成器</span>
           </div>
           <div class="header-actions">
             <a-space>
-              <a-button type="primary" ghost @click="$router.push('/video')">
-                <template #icon><VideoCameraAddOutlined /></template>
-                视频生成
-              </a-button>
               <a-button type="primary" ghost @click="$router.push('/history')">
                 <template #icon><HistoryOutlined /></template>
-                历史记录
+                图片历史
+              </a-button>
+              <a-button type="primary" ghost @click="$router.push('/video-history')">
+                <template #icon><VideoCameraOutlined /></template>
+                视频历史
               </a-button>
             </a-space>
           </div>
@@ -28,9 +28,9 @@
         <div class="content-grid">
           <!-- 左侧：表单 -->
           <div class="form-section">
-            <ImagePromptForm
+            <VideoPromptForm
               ref="promptFormRef"
-              :generating="imageStore.generating"
+              :generating="videoStore.generating"
               @submit="handleGenerate"
               @clear="handleClear"
             />
@@ -41,40 +41,46 @@
             <a-card title="生成结果" class="result-card">
               <template #extra>
                 <a-button
-                  v-if="imageStore.currentImages.length > 0"
+                  v-if="videoStore.currentVideo"
                   type="text"
                   danger
                   size="small"
-                  @click="handleClearImages"
+                  @click="handleClearVideo"
                 >
                   清空结果
                 </a-button>
               </template>
 
               <!-- 加载状态 -->
-              <div v-if="imageStore.generating" class="generating-status">
+              <div v-if="videoStore.generating" class="generating-status">
                 <a-spin size="large" />
-                <p class="status-text">{{ imageStore.generatingMessage }}</p>
+                <p class="status-text">{{ videoStore.generatingMessage }}</p>
+                <a-progress
+                  :percent="progressPercent"
+                  status="active"
+                  :stroke-width="8"
+                  size="small"
+                />
               </div>
 
               <!-- 错误提示 -->
               <a-alert
-                v-else-if="imageStore.error"
+                v-else-if="videoStore.error"
                 type="error"
                 show-icon
                 closable
-                @close="imageStore.clearError"
+                @close="videoStore.clearError"
                 class="error-alert"
               >
                 <template #message>生成失败</template>
-                <template #description>{{ imageStore.error }}</template>
+                <template #description>{{ videoStore.error }}</template>
               </a-alert>
 
-              <!-- 图片画廊 -->
-              <ImageGallery
+              <!-- 视频画廊 -->
+              <VideoGallery
                 v-else
-                :images="imageStore.currentImages"
-                @delete="handleDeleteImage"
+                :video="videoStore.currentVideo"
+                @delete="handleDeleteVideo"
                 @download="handleDownload"
               />
             </a-card>
@@ -84,77 +90,114 @@
 
       <!-- 页脚 -->
       <a-layout-footer class="footer">
-        <span>Doubao Image Generator v1.0.0</span>
+        <span>Doubao Video Generator v2.0.0</span>
       </a-layout-footer>
     </a-layout>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { message, Modal } from 'ant-design-vue'
 import {
-  ThunderboltOutlined,
+  VideoCameraAddOutlined,
   HistoryOutlined,
-  VideoCameraAddOutlined
+  VideoCameraOutlined
 } from '@ant-design/icons-vue'
-import { useImageStore } from '@/stores/imageStore'
-import ImagePromptForm from '@/components/ImagePromptForm.vue'
-import ImageGallery from '@/components/ImageGallery.vue'
+import { useVideoStore } from '@/stores/videoStore'
+import VideoPromptForm from '@/components/VideoPromptForm.vue'
+import VideoGallery from '@/components/VideoGallery.vue'
 
 const router = useRouter()
-const imageStore = useImageStore()
+const videoStore = useVideoStore()
 const promptFormRef = ref(null)
+const progressPercent = ref(0)
+let progressTimer = null
+
+onMounted(() => {
+  // 恢复之前的轮询任务（页面刷新后）
+  videoStore.restorePolling()
+})
 
 const handleGenerate = async (params) => {
-  let result
-  // 判断是否是图生图请求
+  // 判断是否是图生视频请求
   const hasImageInput = params.image_url || params.image_base64
 
+  // 开始进度动画
+  progressPercent.value = 0
+  startProgressAnimation()
+
+  let result
   if (hasImageInput) {
-    result = await imageStore.generateImagesFromImage(params)
+    result = await videoStore.generateVideoFromImage(params)
   } else {
-    result = await imageStore.generateImages(params)
+    result = await videoStore.generateVideo(params)
   }
 
+  // 停止进度动画（但保持generating状态，等待轮询完成）
+  stopProgressAnimation()
+
   if (result.success) {
-    message.success(`成功生成 ${result.data.length} 张图片`)
+    // 任务已提交，轮询中...
+    message.success('任务已提交，开始生成视频')
   } else {
-    message.error(result.error || '生成失败')
+    videoStore.generating = false
+    message.error(result.error || '提交失败')
+  }
+}
+
+const startProgressAnimation = () => {
+  progressTimer = setInterval(() => {
+    if (progressPercent.value < 90) {
+      progressPercent.value += Math.random() * 5
+    }
+  }, 1000)
+}
+
+const stopProgressAnimation = () => {
+  if (progressTimer) {
+    clearInterval(progressTimer)
+    progressTimer = null
   }
 }
 
 const handleClear = () => {
-  imageStore.clearCurrentImages()
+  videoStore.clearCurrentVideo()
+  progressPercent.value = 0
 }
 
-const handleClearImages = () => {
+const handleClearVideo = () => {
   Modal.confirm({
     title: '确认清空',
-    content: '确定要清空当前所有生成结果吗？',
+    content: '确定要清空当前生成的视频吗？',
     okText: '确认',
     cancelText: '取消',
     onOk() {
-      imageStore.clearCurrentImages()
+      videoStore.clearCurrentVideo()
       message.success('已清空')
     }
   })
 }
 
-const handleDeleteImage = async (image) => {
-  const result = await imageStore.deleteImage(image.id)
+const handleDeleteVideo = async (video) => {
+  const result = await videoStore.deleteVideo(video.id)
 
   if (result.success) {
-    message.success('图片已删除')
+    message.success('视频已删除')
   } else {
     message.error(result.error || '删除失败')
   }
 }
 
-const handleDownload = (image) => {
+const handleDownload = (video) => {
   message.success('开始下载')
 }
+
+onUnmounted(() => {
+  stopProgressAnimation()
+  videoStore.stopPolling()
+})
 </script>
 
 <style scoped>
@@ -163,7 +206,7 @@ const handleDownload = (image) => {
 }
 
 .header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #f759ab 0%, #ab8bff 100%);
   padding: 0 24px;
   height: 64px;
 }

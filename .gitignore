@@ -13,6 +13,7 @@ backend/.env
 
 # Generated files
 generated_images/
+generated_videos/
 data/
 
 # Logs
